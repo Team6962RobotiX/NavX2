@@ -4,11 +4,15 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.AnalogGyro;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
+import edu.wpi.first.wpilibj.I2C;
+import com.kauailabs.navx.frc.AHRS;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
+
 
 /**
  * This is a sample program to demonstrate how to use a gyro sensor to make a robot drive straight.
@@ -19,24 +23,23 @@ public class Robot extends TimedRobot {
   private static final double kAngleSetpoint = 0.0;
   private static final double kP = 0.005; // propotional turning constant
 
-  // gyro calibration constant, may need to be adjusted;
-  // gyro value of 360 is set to correspond to one full revolution
-  private static final double kVoltsPerDegreePerSecond = 0.0128;
-
   private static final int kLeftMotorPort = 0;
   private static final int kRightMotorPort = 1;
-  private static final int kGyroPort = 0;
+
   private static final int kJoystickPort = 0;
 
-  private final PWMSparkMax m_leftDrive = new PWMSparkMax(kLeftMotorPort);
-  private final PWMSparkMax m_rightDrive = new PWMSparkMax(kRightMotorPort);
+  private final CANSparkMax m_leftDrive = new CANSparkMax(kLeftMotorPort, MotorType.kBrushless);
+  private final CANSparkMax m_rightDrive = new CANSparkMax(kRightMotorPort, MotorType.kBrushless);
   private final DifferentialDrive m_myRobot = new DifferentialDrive(m_leftDrive, m_rightDrive);
-  private final AnalogGyro m_gyro = new AnalogGyro(kGyroPort);
+  // private final AnalogGyro m_gyro = new AnalogGyro(kGyroPort);
   private final Joystick m_joystick = new Joystick(kJoystickPort);
+  private final AHRS m_gyro = new AHRS(I2C.Port.kMXP);
+
 
   @Override
   public void robotInit() {
-    m_gyro.setSensitivity(kVoltsPerDegreePerSecond);
+    m_gyro.calibrate();
+    m_gyro.getPitch();
     // We need to invert one side of the drivetrain so that positive voltages
     // result in both sides moving forward. Depending on how your robot's
     // gearbox is constructed, you might have to invert the left side instead.

@@ -20,7 +20,6 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
  * keeping.
  */
 public class Robot extends TimedRobot {
-  private static final double kAngleSetpoint = 0.0;
   private static final double kP = 0.005; // propotional turning constant
 
   private static final int kLeftMotorPort = 0;
@@ -51,8 +50,20 @@ public class Robot extends TimedRobot {
    * from the error between the setpoint and the gyro angle.
    */
   @Override
-  public void teleopPeriodic() {
-    double turningValue = (kAngleSetpoint - m_gyro.getAngle()) * kP;
-    m_myRobot.arcadeDrive(-m_joystick.getY(), -turningValue);
+  public void robotPeriodic() {
+    boolean st1 = false;
+    boolean st2 = false;
+    double angleRatio = m_gyro.getPitch()/180;
+
+    
+    while (!st1) {
+      m_myRobot.tankDrive(1.0, 1.0);
+      if (m_gyro.getPitch() > 25) {
+        st1 = true;
+      }
+    } while (!st2) {
+      m_myRobot.tankDrive(angleRatio, angleRatio);
+      st2 = true;
+    }
   }
 }

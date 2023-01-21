@@ -13,7 +13,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import java.util.ArrayList;
-import java.util.Random;
+import java.lang.Math;
 
 /**
  * This is a sample program to demonstrate how to use a gyro sensor to make a robot drive straight.
@@ -90,21 +90,16 @@ public class Robot extends TimedRobot {
     }
   }
 
-
-
-
-
-  private static Random rand = new Random();   
   public static Float getLyse(int time) {
     ArrayList<Float> values = new ArrayList<Float>();
-    for(int i = 0; i < 100; i++){
-      values.add(randValue());
+    for(int i = 0; i < 100; i++) {
+      values.add(randValue(i));
     }
 		return values.get(time);
   }
 
-  public static float randValue(){
-    return rand.nextFloat()*68 - 34;
+  public static float randValue(int x) {
+    float a = (float) Math.sin(x);
+    return 2 * a + 15;
   }
-
 }

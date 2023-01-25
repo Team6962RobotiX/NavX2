@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.networktables.*;
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -37,6 +38,11 @@ public class Robot extends TimedRobot {
 
   private final long initTime = System.currentTimeMillis();
 
+  NetworkTableInstance inst = NetworkTableInstance.getDefault();
+  NetworkTable table = inst.getTable("gyro");
+  final DoublePublisher pitchPub = inst.getDoubleTopic("pitch").publish();
+  final DoublePublisher outPub = inst.getDoubleTopic("out").publish();
+
 
   @Override
   public void robotInit() {
@@ -45,6 +51,7 @@ public class Robot extends TimedRobot {
     // result in both sides moving forward. Depending on how your robot's
     // gearbox is constructed, you might have to invert the left side instead.
     m_rightDrive.setInverted(true);
+
   }
 
   /**
@@ -78,15 +85,19 @@ public class Robot extends TimedRobot {
     boolean st2 = false;
     double angleRatio = m_gyro.getPitch()/180;
 
+    pitchPub.set(m_gyro.getPitch());
+
     
     while (!st1) {
       m_myRobot.tankDrive(1.0, 1.0);
-      if (getLyse((int)(currentTime/100)) > 25) {
+      if (m_gyro.getPitch() > 25) {
         st1 = true;
+        outPub.set(1);
       }
     } while (!st2) {
       m_myRobot.tankDrive(angleRatio, angleRatio);
       st2 = true;
+      outPub.set(angleRatio);
     }
   }
 

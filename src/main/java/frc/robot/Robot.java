@@ -4,14 +4,16 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.Joystick;
+// import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.networktables.*;
 import com.kauailabs.navx.frc.AHRS;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
+import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
+// import com.revrobotics.CANSparkMax;
+// import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import java.util.ArrayList;
 import java.lang.Math;
@@ -29,11 +31,13 @@ public class Robot extends TimedRobot {
 
   private static final int kJoystickPort = 0;
 
-  private final CANSparkMax m_leftDrive = new CANSparkMax(kLeftMotorPort, MotorType.kBrushless);
-  private final CANSparkMax m_rightDrive = new CANSparkMax(kRightMotorPort, MotorType.kBrushless);
+  // private final CANSparkMax m_leftDrive = new CANSparkMax(kLeftMotorPort, MotorType.kBrushless);
+  // private final CANSparkMax m_rightDrive = new CANSparkMax(kRightMotorPort, MotorType.kBrushless);
+  PWMSparkMax m_leftDrive = new PWMSparkMax(kLeftMotorPort);
+  PWMSparkMax m_rightDrive = new PWMSparkMax(kRightMotorPort);
   private final DifferentialDrive m_myRobot = new DifferentialDrive(m_leftDrive, m_rightDrive);
   // private final AnalogGyro m_gyro = new AnalogGyro(kGyroPort);
-  private final Joystick m_joystick = new Joystick(kJoystickPort);
+  // private final Joystick m_joystick = new Joystick(kJoystickPort);
   private final AHRS m_gyro = new AHRS(I2C.Port.kMXP);
 
   private final long initTime = System.currentTimeMillis();
@@ -51,7 +55,6 @@ public class Robot extends TimedRobot {
     // result in both sides moving forward. Depending on how your robot's
     // gearbox is constructed, you might have to invert the left side instead.
     m_rightDrive.setInverted(true);
-
   }
 
   /**
@@ -63,7 +66,6 @@ public class Robot extends TimedRobot {
     boolean st1 = false;
     boolean st2 = false;
     double angleRatio = m_gyro.getPitch()/180;
-
     
     while (!st1) {
       m_myRobot.tankDrive(1.0, 1.0);
@@ -77,16 +79,13 @@ public class Robot extends TimedRobot {
   }
 
   public void teleopPeriodic() {
-
     long currentTime = initTime - System.currentTimeMillis();
 
-    
     boolean st1 = false;
     boolean st2 = false;
     double angleRatio = m_gyro.getPitch()/180;
 
     pitchPub.set(m_gyro.getPitch());
-
     
     while (!st1) {
       m_myRobot.tankDrive(1.0, 1.0);

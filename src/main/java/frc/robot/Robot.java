@@ -65,65 +65,65 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    // boolean st1 = false;
-    // boolean st2 = false;
-    // double angleRatio = m_gyro.getPitch() / 180;
+    boolean st1 = false;
+    boolean st2 = false;
+    double angleRatio = m_gyro.getPitch() / 180;
 
-    // while (!st1) {
-    //   m_myRobot.tankDrive(1.0, 1.0);
-    //   if (m_gyro.getPitch() > 25) {
-    //     st1 = true;
-    //   }
-    // }
-    // while (!st2) {
-    //   m_myRobot.tankDrive(angleRatio, angleRatio);
-    //   st2 = true;
-    // }
+    while (!st1) {
+      m_myRobot.tankDrive(0.6, 0.6);
+      if (m_gyro.getPitch() > 25) {
+        st1 = true;
+      }
+    }
+    while (!st2) {
+      m_myRobot.tankDrive(angleRatio, angleRatio);
+      st2 = true;
+    }
   }
 
   public void teleopPeriodic() {
-    double xAxisRate = m_joystick.getX();
-    double pitchAngleDegrees = m_gyro.getPitch();
+    // double xAxisRate = m_joystick.getX();
+    // double pitchAngleDegrees = m_gyro.getPitch();
 
-    if (!autoBalanceXMode && (Math.abs(pitchAngleDegrees) >= Math.abs(kOffBalanceAngleThresholdDegrees))) {
-      autoBalanceXMode = true;
-    } else if (autoBalanceXMode && (Math.abs(pitchAngleDegrees) <= Math.abs(kOonBalanceAngleThresholdDegrees))) {
-      autoBalanceXMode = false;
-    }
+    // if (!autoBalanceXMode && (Math.abs(pitchAngleDegrees) >= Math.abs(kOffBalanceAngleThresholdDegrees))) {
+    //   autoBalanceXMode = true;
+    // } else if (autoBalanceXMode && (Math.abs(pitchAngleDegrees) <= Math.abs(kOonBalanceAngleThresholdDegrees))) {
+    //   autoBalanceXMode = false;
+    // }
 
-    if (autoBalanceXMode) {
-      double pitchAngleRadians = pitchAngleDegrees * (Math.PI / 180.0);
-      xAxisRate = Math.sin(pitchAngleRadians) * -1;
-    }
+    // if (autoBalanceXMode) {
+    //   double pitchAngleRadians = pitchAngleDegrees * (Math.PI / 180.0);
+    //   xAxisRate = Math.sin(pitchAngleRadians) * -1;
+    // }
 
-    try {
-      m_myRobot.tankDrive(xAxisRate, xAxisRate);
-    } catch (RuntimeException ex) {
-      String err_string = "Drive system error:  " + ex.getMessage();
-      DriverStation.reportError(err_string, true);
-    }
+    // try {
+    //   m_myRobot.tankDrive(xAxisRate, xAxisRate);
+    // } catch (RuntimeException ex) {
+    //   String err_string = "Drive system error:  " + ex.getMessage();
+    //   DriverStation.reportError(err_string, true);
+    // }
 
     // timer for motor update time?
 
     // long currentTime = initTime - System.currentTimeMillis();
 
-    // boolean st1 = false;
-    // boolean st2 = false;
-    // double angleRatio = m_gyro.getPitch() / 180;
+    boolean st1 = false;
+    boolean st2 = false;
+    double angleRatio = m_gyro.getPitch() / 180;
 
-    // pitchPub.set(m_gyro.getPitch());
+    pitchPub.set(m_gyro.getPitch());
 
-    // while (!st1) {
-    //   m_myRobot.tankDrive(1.0, 1.0);
-    //   if (m_gyro.getPitch() > 25) {
-    //     st1 = true;
-    //     outPub.set(1);
-    //   }
-    // }
-    // while (!st2) {
-    //   m_myRobot.tankDrive(angleRatio, angleRatio);
-    //   st2 = true;
-    //   outPub.set(angleRatio);
-    // }
+    while (!st1) {
+      m_myRobot.tankDrive(0.6, 0.6);
+      if (m_gyro.getPitch() > 25) {
+        st1 = true;
+        outPub.set(1);
+      }
+    }
+    while (!st2) {
+      m_myRobot.tankDrive(angleRatio, angleRatio);
+      st2 = true;
+      outPub.set(angleRatio);
+    }
   }
 }

@@ -4,7 +4,8 @@
 
 package frc.robot;
 
-// import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.I2C;
@@ -15,7 +16,6 @@ import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 // import com.revrobotics.CANSparkMax;
 // import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import java.util.ArrayList;
 import java.lang.Math;
 
 /**
@@ -37,16 +37,18 @@ public class Robot extends TimedRobot {
   PWMSparkMax m_rightDrive = new PWMSparkMax(kRightMotorPort);
   private final DifferentialDrive m_myRobot = new DifferentialDrive(m_leftDrive, m_rightDrive);
   // private final AnalogGyro m_gyro = new AnalogGyro(kGyroPort);
-  // private final Joystick m_joystick = new Joystick(kJoystickPort);
+  private final Joystick m_joystick = new Joystick(kJoystickPort);
   private final AHRS m_gyro = new AHRS(I2C.Port.kMXP);
+  boolean autoBalanceXMode;
+  final double kOffBalanceAngleThresholdDegrees = 10;
+  final double kOonBalanceAngleThresholdDegrees = 5;
 
-  private final long initTime = System.currentTimeMillis();
+  // private final long initTime = System.currentTimeMillis();
 
   NetworkTableInstance inst = NetworkTableInstance.getDefault();
   NetworkTable table = inst.getTable("gyro");
   final DoublePublisher pitchPub = inst.getDoubleTopic("pitch").publish();
   final DoublePublisher outPub = inst.getDoubleTopic("out").publish();
-
 
   @Override
   public void robotInit() {
@@ -63,53 +65,65 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    boolean st1 = false;
-    boolean st2 = false;
-    double angleRatio = m_gyro.getPitch()/180;
-    
-    while (!st1) {
-      m_myRobot.tankDrive(1.0, 1.0);
-      if (m_gyro.getPitch() > 25) {
-        st1 = true;
-      }
-    } while (!st2) {
-      m_myRobot.tankDrive(angleRatio, angleRatio);
-      st2 = true;
-    }
+    // boolean st1 = false;
+    // boolean st2 = false;
+    // double angleRatio = m_gyro.getPitch() / 180;
+
+    // while (!st1) {
+    //   m_myRobot.tankDrive(1.0, 1.0);
+    //   if (m_gyro.getPitch() > 25) {
+    //     st1 = true;
+    //   }
+    // }
+    // while (!st2) {
+    //   m_myRobot.tankDrive(angleRatio, angleRatio);
+    //   st2 = true;
+    // }
   }
 
   public void teleopPeriodic() {
-    long currentTime = initTime - System.currentTimeMillis();
+    double xAxisRate = m_joystick.getX();
+    double pitchAngleDegrees = m_gyro.getPitch();
 
-    boolean st1 = false;
-    boolean st2 = false;
-    double angleRatio = m_gyro.getPitch()/180;
-
-    pitchPub.set(m_gyro.getPitch());
-    
-    while (!st1) {
-      m_myRobot.tankDrive(1.0, 1.0);
-      if (m_gyro.getPitch() > 25) {
-        st1 = true;
-        outPub.set(1);
-      }
-    } while (!st2) {
-      m_myRobot.tankDrive(angleRatio, angleRatio);
-      st2 = true;
-      outPub.set(angleRatio);
+    if (!autoBalanceXMode && (Math.abs(pitchAngleDegrees) >= Math.abs(kOffBalanceAngleThresholdDegrees))) {
+      autoBalanceXMode = true;
+    } else if (autoBalanceXMode && (Math.abs(pitchAngleDegrees) <= Math.abs(kOonBalanceAngleThresholdDegrees))) {
+      autoBalanceXMode = false;
     }
-  }
 
-  public static Float getLyse(int time) {
-    ArrayList<Float> values = new ArrayList<Float>();
-    for(int i = 0; i < 100; i++) {
-      values.add(randValue(i));
+    if (autoBalanceXMode) {
+      double pitchAngleRadians = pitchAngleDegrees * (Math.PI / 180.0);
+      xAxisRate = Math.sin(pitchAngleRadians) * -1;
     }
-		return values.get(time);
-  }
 
-  public static float randValue(int x) {
-    float a = (float) Math.sin(x);
-    return 2 * a + 15;
+    try {
+      m_myRobot.tankDrive(xAxisRate, xAxisRate);
+    } catch (RuntimeException ex) {
+      String err_string = "Drive system error:  " + ex.getMessage();
+      DriverStation.reportError(err_string, true);
+    }
+
+    // timer for motor update time?
+
+    // long currentTime = initTime - System.currentTimeMillis();
+
+    // boolean st1 = false;
+    // boolean st2 = false;
+    // double angleRatio = m_gyro.getPitch() / 180;
+
+    // pitchPub.set(m_gyro.getPitch());
+
+    // while (!st1) {
+    //   m_myRobot.tankDrive(1.0, 1.0);
+    //   if (m_gyro.getPitch() > 25) {
+    //     st1 = true;
+    //     outPub.set(1);
+    //   }
+    // }
+    // while (!st2) {
+    //   m_myRobot.tankDrive(angleRatio, angleRatio);
+    //   st2 = true;
+    //   outPub.set(angleRatio);
+    // }
   }
 }

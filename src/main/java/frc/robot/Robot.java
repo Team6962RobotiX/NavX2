@@ -4,12 +4,11 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Joystick;
+// import edu.wpi.first.wpilibj.DriverStation;
+// import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.I2C;
-import edu.wpi.first.networktables.*;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
@@ -29,7 +28,7 @@ public class Robot extends TimedRobot {
   private static final int kLeftMotorPort = 0;
   private static final int kRightMotorPort = 1;
 
-  private static final int kJoystickPort = 0;
+  // private static final int kJoystickPort = 0;
 
   // private final CANSparkMax m_leftDrive = new CANSparkMax(kLeftMotorPort, MotorType.kBrushless);
   // private final CANSparkMax m_rightDrive = new CANSparkMax(kRightMotorPort, MotorType.kBrushless);
@@ -37,18 +36,13 @@ public class Robot extends TimedRobot {
   PWMSparkMax m_rightDrive = new PWMSparkMax(kRightMotorPort);
   private final DifferentialDrive m_myRobot = new DifferentialDrive(m_leftDrive, m_rightDrive);
   // private final AnalogGyro m_gyro = new AnalogGyro(kGyroPort);
-  private final Joystick m_joystick = new Joystick(kJoystickPort);
+  // private final Joystick m_joystick = new Joystick(kJoystickPort);
   private final AHRS m_gyro = new AHRS(I2C.Port.kMXP);
   boolean autoBalanceXMode;
   final double kOffBalanceAngleThresholdDegrees = 10;
   final double kOonBalanceAngleThresholdDegrees = 5;
 
   // private final long initTime = System.currentTimeMillis();
-
-  NetworkTableInstance inst = NetworkTableInstance.getDefault();
-  NetworkTable table = inst.getTable("gyro");
-  final DoublePublisher pitchPub = inst.getDoubleTopic("pitch").publish();
-  final DoublePublisher outPub = inst.getDoubleTopic("out").publish();
 
   @Override
   public void robotInit() {
@@ -111,19 +105,15 @@ public class Robot extends TimedRobot {
     boolean st2 = false;
     double angleRatio = m_gyro.getPitch() / 180;
 
-    pitchPub.set(m_gyro.getPitch());
-
     while (!st1) {
       m_myRobot.tankDrive(0.6, 0.6);
       if (m_gyro.getPitch() > 25) {
         st1 = true;
-        outPub.set(1);
       }
     }
     while (!st2) {
       m_myRobot.tankDrive(angleRatio, angleRatio);
       st2 = true;
-      outPub.set(angleRatio);
     }
   }
 }
